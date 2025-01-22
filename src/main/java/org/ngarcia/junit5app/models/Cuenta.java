@@ -26,4 +26,13 @@ public class Cuenta {
     public void setSaldo(BigDecimal saldo) {
         this.saldo = saldo;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(!(obj instanceof Cuenta) || this.persona == null || this.saldo == null) {
+            return false;
+        }
+        return this.persona.equals(((Cuenta)obj).getPersona()) &&
+                this.saldo.equals(((Cuenta)obj).getSaldo());
+    }
 }
