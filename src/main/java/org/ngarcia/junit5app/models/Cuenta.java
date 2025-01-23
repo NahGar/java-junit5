@@ -1,6 +1,7 @@
 package org.ngarcia.junit5app.models;
 
 import java.math.BigDecimal;
+import org.ngarcia.junit5app.exceptions.DineroInsuficienteException;
 
 public class Cuenta {
     private String persona;
@@ -27,6 +28,18 @@ public class Cuenta {
         this.saldo = saldo;
     }
 
+    public void debito(BigDecimal monto) {
+        BigDecimal nuevoSaldo = this.saldo.subtract(monto);
+        if(nuevoSaldo.compareTo(BigDecimal.ZERO) < 0) {
+            throw new DineroInsuficienteException("Dinero insuficiente");
+        }
+        this.saldo = nuevoSaldo;                
+    }
+    
+    public void credito(BigDecimal monto) {
+        this.saldo = this.saldo.add(monto);
+    }
+    
     @Override
     public boolean equals(Object obj) {
         if(!(obj instanceof Cuenta) || this.persona == null || this.saldo == null) {
