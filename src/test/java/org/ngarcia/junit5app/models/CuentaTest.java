@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.ngarcia.junit5app.exceptions.DineroInsuficienteException;
 
 class CuentaTest {
@@ -61,15 +63,37 @@ class CuentaTest {
         assertEquals(1100, cuenta.getSaldo().intValue());
         assertEquals("1100.12345", cuenta.getSaldo().toPlainString());
     }
-    
+
     @Test
-    void testDineroInsuficienteCuenta() {
-        Cuenta cuenta = new Cuenta("Pepe",new BigDecimal("1000.12345"));
-        Exception ex = assertThrows(DineroInsuficienteException.class, () -> {
-            cuenta.debito(new BigDecimal(1001));
-        });
-        String actual = ex.getMessage();
-        String esperado = "Dinero insuficiente";
-        assertEquals(esperado, actual);
+    void testTransferirDineroCuentas() {
+        Cuenta cuenta1 = new Cuenta("Pepe",new BigDecimal("1000.12345"));
+        Cuenta cuenta2 = new Cuenta("Roberto",new BigDecimal("2000.12345"));
+        Banco banco = new Banco();
+        banco.setNombre("Banco República");
+        banco.transferir(cuenta2,cuenta1,new BigDecimal(500));
+        assertEquals("1500.12345", cuenta2.getSaldo().toPlainString());
+        assertEquals("1500.12345", cuenta1.getSaldo().toPlainString());
+    }
+
+    @Test
+    void testRelacionBancoCuentas() {
+        Cuenta cuenta1 = new Cuenta("Pepe",new BigDecimal("1000.12345"));
+        Cuenta cuenta2 = new Cuenta("Roberto",new BigDecimal("2000.12345"));
+        Banco banco = new Banco();
+
+        banco.setNombre("Banco República");
+        banco.addCuenta(cuenta1);
+        banco.addCuenta(cuenta2);
+
+        //con assertAll no se detiene cuando un assert es erróneo
+        assertAll(
+            () -> assertEquals(22,banco.getCuentas().size()),
+            () -> assertEquals("Banco República",cuenta1.getBanco().getNombre()),
+            () -> assertEquals("Pepe2",banco.getCuentas().stream()
+                    .filter( c-> c.getPersona().equals("Pepe"))
+                    .findFirst().get().getPersona()),
+            () -> assertTrue(banco.getCuentas().stream()
+                    .anyMatch( c-> c.getPersona().equals("Roberto")))
+        );
     }
 }
